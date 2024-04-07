@@ -5,10 +5,7 @@ import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.so
 
 library PriceConverter {
 
-    function getPrice() internal view returns (uint256) {
-        // ABI
-        // Address 0x694AA1769357215DE4FAC081bf1f309aDC325306
-        AggregatorV3Interface priceFeed = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
+    function getPrice(AggregatorV3Interface priceFeed) internal view returns (uint256) {
         (,int256 answer,,,) = priceFeed.latestRoundData();
         // ETH in terms of USD
         // 3000.00000000
@@ -22,9 +19,9 @@ library PriceConverter {
         
     }
 
-    function getConversionRate(uint256 ethAmount) internal view returns (uint256) {
+    function getConversionRate(uint256 ethAmount, AggregatorV3Interface priceFeed) internal view returns (uint256) {
 
-        uint256 ethPrice = getPrice();
+        uint256 ethPrice = getPrice(priceFeed);
         uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1e18;
         return ethAmountInUsd;
 
