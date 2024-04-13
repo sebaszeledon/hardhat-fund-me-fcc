@@ -34,22 +34,14 @@ contract FundMe {
         i_owner = msg.sender;
         priceFeed = AggregatorV3Interface(priceFeedAddress);
     }
-
-    receive() external payable { 
-        fund();
-    }
-
-    fallback() external payable {
-        fund();
-     }
     /**
     * @notice This function funds this conrtract
     * @dev This implements price feeds as our Library 
     */
     function fund() public payable{
         require(msg.value.getConversionRate(priceFeed) >= MINIMUM_USD, "Didn't sent enough!");
+        addressToAmountFunded[msg.sender] += msg.value;
         funders.push(msg.sender);
-        addressToAmountFunded[msg.sender] = msg.value;
     }
 
     function withdraw() public onlyOwner{
