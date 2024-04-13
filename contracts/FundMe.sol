@@ -1,27 +1,51 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24; //4:53
 
+import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import "./PriceConverter.sol";
 
-error NotOwner();
+error FundMe__NotOwner();
 
+/**
+ * @title A contract for crowd funding
+ * @author Sebastián Zeledón
+ * @notice This contract is to demo a sample funding contract
+ * @dev This implements price feeds as our Library 
+ */
 contract FundMe {
-
+    //Type declarations
     using PriceConverter for uint256;
-
     uint256 public constant MINIMUM_USD = 50 * 1e18;
 
+    //State Variables 
     address[] public funders;
     mapping(address => uint256) public addressToAmountFunded;
-
     address public immutable i_owner;
     AggregatorV3Interface public priceFeed;
 
+    //
+    modifier onlyOwner {
+        //require(msg.sender == i_owner, "Sender is not owner");
+        if(msg.sender != i_owner) {revert FundMe__NotOwner();}
+        _;
+    }
+    
     constructor(address priceFeedAddress) {
         i_owner = msg.sender;
         priceFeed = AggregatorV3Interface(priceFeedAddress);
     }
 
+    receive() external payable { 
+        fund();
+    }
+
+    fallback() external payable {
+        fund();
+     }
+    /**
+    * @notice This function funds this conrtract
+    * @dev This implements price feeds as our Library 
+    */
     function fund() public payable{
         require(msg.value.getConversionRate(priceFeed) >= MINIMUM_USD, "Didn't sent enough!");
         funders.push(msg.sender);
@@ -42,27 +66,6 @@ contract FundMe {
         (bool callSuccess, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess, "Call Failed.");
 
-        //transfer
-        //payable(msg.sender).transfer(address(this).balance);
-
-        /*send
-        bool sendSuccess = payable(msg.sender).send(address(this).balance);
-        require(sendSuccess, "Send Failed.");
-        */
     } 
-
-    modifier onlyOwner {
-        //require(msg.sender == i_owner, "Sender is not owner");
-        if(msg.sender != i_owner) {revert NotOwner();}
-        _;
-    }
-
-    receive() external payable { 
-        fund();
-    }
-
-    fallback() external payable {
-        fund();
-     }
 
 }
