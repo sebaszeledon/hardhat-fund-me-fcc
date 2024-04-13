@@ -40,8 +40,8 @@ contract FundMe {
     */
     function fund() public payable{
         require(msg.value.getConversionRate(priceFeed) >= MINIMUM_USD, "Didn't sent enough!");
-        addressToAmountFunded[msg.sender] += msg.value;
         funders.push(msg.sender);
+        addressToAmountFunded[msg.sender] += msg.value;
     }
 
     function withdraw() public onlyOwner{
@@ -58,6 +58,9 @@ contract FundMe {
         (bool callSuccess, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess, "Call Failed.");
 
-    } 
+    }
+    function getPriceFeed() public view returns (AggregatorV3Interface) {
+        return priceFeed;
+    }
 
 }
