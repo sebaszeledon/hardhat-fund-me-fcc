@@ -64,7 +64,7 @@ describe("FundMe", async function () {
             assert.equal(
                 startingFundMeBalance + startingDeployerBalance,
                 endingDeployerBalance + gasCost
-            );
+            );//11:36
         });
     });
 
