@@ -134,7 +134,7 @@ describe("FundMe", async function () {
                 assert.equal(await fundMe.s_addressToAmountFunded(accounts[i].address), 0);
             }
         });
-    });
+    });//12:05:29
 
 
 });
